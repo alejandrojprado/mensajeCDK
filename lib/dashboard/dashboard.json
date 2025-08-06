@@ -1,0 +1,19 @@
+{
+    "widgets": [
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 26,
+            "width": 12,
+            "height": 7,
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/ECS", "CPUUtilization", "ServiceName", "MensajeService", "ClusterName", "MensajeCluster" ]
+                ],
+                "region": "us-east-1"
+            }
+        }
+    ]
+}
