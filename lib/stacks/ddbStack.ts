@@ -35,7 +35,16 @@ export class TableStack extends cdk.Stack {
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
+
+    this.seguidoresTable.addGlobalSecondaryIndex({
+      indexName: 'FollowingIndex',
+      partitionKey: {
+        name: 'following_id',
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL
     });
 
     this.timelineTable = new dynamodb.Table(this, 'TimelineTable', {

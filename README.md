@@ -14,6 +14,7 @@ Este proyecto implementa una infraestructura para un servicio de mensajes (estil
 ## Despliegue de la infraestructura
 1.
    npm run build
+   npx cdk bootstap
    npx cdk deploy
 
 ## Variables de entorno

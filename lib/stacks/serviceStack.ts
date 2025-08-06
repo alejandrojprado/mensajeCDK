@@ -6,6 +6,7 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { EnvironmentConfig } from '../config/environment';
 
 interface ServiceStackProps extends cdk.StackProps {
@@ -87,6 +88,18 @@ export class ServiceStack extends cdk.Stack {
     props.mensajesTable.grantReadWriteData(taskDef.taskRole);
     props.seguidoresTable.grantReadWriteData(taskDef.taskRole);
     props.timelineTable.grantReadWriteData(taskDef.taskRole);
+
+    taskDef.taskRole?.attachInlinePolicy(new iam.Policy(this, 'CloudWatchMetricsPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'cloudwatch:PutMetricData'
+          ],
+          resources: ['*']
+        })
+      ]
+    }));
 
     const scaling = service.service.autoScaleTaskCount({ maxCapacity: 4 });
     scaling.scaleOnCpuUtilization('CpuScaling', {
