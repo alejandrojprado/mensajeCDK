@@ -34,16 +34,16 @@ const serviceStack = new ServiceStack(app, 'MensajeServiceStack', {
   envConfig
 });
 
+
+const dashboardStack = new DashboardStack(app, 'MensajeDashboardStack', {
+  env: { region: getConfig().region  }
+});
+
 const pipelineStack = new PipelineStack(app, 'MensajePipelineStack', {
   ecrRepositoryName: ecrStack.repository.repositoryName,
   ecsClusterName: serviceStack.ecsCluster.clusterName,
   ecsServiceName: serviceStack.ecsService.serviceName,
   ecsClusterVpc: vpcStack.vpc,
-});
-
-
-const dashboardStack = new DashboardStack(app, 'MensajeDashboardStack', {
-  env: { region: getConfig().region  }
 });
 
 
@@ -55,6 +55,6 @@ const alarmStack = new AlarmStack(app, 'MensajeAlarmStack', {
 serviceStack.addDependency(vpcStack);
 serviceStack.addDependency(tableStack);
 serviceStack.addDependency(ecrStack);
-pipelineStack.addDependency(serviceStack);
 dashboardStack.addDependency(serviceStack);
+pipelineStack.addDependency(serviceStack);
 alarmStack.addDependency(serviceStack);
