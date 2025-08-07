@@ -18,20 +18,12 @@ export class PipelineStack extends cdk.Stack {
     super(scope, id, props);
 
     const sourceOutput = new codepipeline.Artifact();
-    const testSourceOutput = new codepipeline.Artifact();
 
     const sourceAction = new cpactions.EcrSourceAction({
       actionName: 'ECR_Source',
       repository: cdk.aws_ecr.Repository.fromRepositoryName(this, 'EcrRepo', props.ecrRepositoryName),
       imageTag: 'latest',
       output: sourceOutput
-    });
-
-    const testSourceAction = new cpactions.EcrSourceAction({
-      actionName: 'Test_Image_Source',
-      repository: cdk.aws_ecr.Repository.fromRepositoryName(this, 'TestEcrRepo', props.testEcrRepositoryName || 'mensaje-service-tests'),
-      imageTag: 'latest',
-      output: testSourceOutput
     });
 
     const buildProject = new codebuild.PipelineProject(this, 'BuildProject', {
@@ -90,21 +82,36 @@ export class PipelineStack extends cdk.Stack {
         SERVICE_URL: {
           value: props.loadBalancerDns || 'http://localhost',
           type: codebuild.BuildEnvironmentVariableType.PLAINTEXT
+        },
+        AWS_ACCOUNT_ID: {
+          value: cdk.Stack.of(this).account,
+          type: codebuild.BuildEnvironmentVariableType.PLAINTEXT
         }
       }
     });
 
+    integrationTestProject.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      effect: cdk.aws_iam.Effect.ALLOW,
+      actions: [
+        'ecr:GetAuthorizationToken',
+        'ecr:BatchCheckLayerAvailability',
+        'ecr:GetDownloadUrlForLayer',
+        'ecr:BatchGetImage'
+      ],
+      resources: ['*']
+    }));
+
     const integrationTestAction = new cpactions.CodeBuildAction({
       actionName: 'IntegrationTests',
       project: integrationTestProject,
-      input: testSourceOutput,
+      input: sourceOutput,
     });
 
     new codepipeline.Pipeline(this, 'MensajePipeline', {
       stages: [
         {
           stageName: 'Source',
-          actions: [sourceAction, testSourceAction]
+          actions: [sourceAction]
         },
         {
           stageName: 'Build',
