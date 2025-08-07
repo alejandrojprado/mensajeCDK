@@ -22,6 +22,7 @@ interface ServiceStackProps extends cdk.StackProps {
 export class ServiceStack extends cdk.Stack {
   public readonly ecsCluster: ecs.ICluster;
   public readonly ecsService: ecs.FargateService;
+  public readonly loadBalancer: cdk.aws_elasticloadbalancingv2.IApplicationLoadBalancer;
 
   constructor(scope: Construct, id: string, props: ServiceStackProps) {
     super(scope, id, props);
@@ -73,6 +74,7 @@ export class ServiceStack extends cdk.Stack {
       serviceName: 'MensajeService',
     });
     this.ecsService = service.service;
+    this.loadBalancer = service.loadBalancer;
 
     const dnsUrl = 'http://' + service.loadBalancer.loadBalancerDnsName
 

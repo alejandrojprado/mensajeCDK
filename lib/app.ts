@@ -20,7 +20,7 @@ const tableStack = new TableStack(app, 'MensajeTableStack', {
 });
 
 const ecrStack = new EcrStack(app, 'MensajeEcrStack', {
-  env: { region: 'us-east-1' }
+  env: { region: getConfig().region }
 });
 
 const serviceStack = new ServiceStack(app, 'MensajeServiceStack', {
@@ -34,21 +34,22 @@ const serviceStack = new ServiceStack(app, 'MensajeServiceStack', {
   envConfig
 });
 
-
 const dashboardStack = new DashboardStack(app, 'MensajeDashboardStack', {
-  env: { region: getConfig().region  }
+  env: { region: getConfig().region }
 });
 
 const pipelineStack = new PipelineStack(app, 'MensajePipelineStack', {
+  env: { region: getConfig().region },
   ecrRepositoryName: ecrStack.repository.repositoryName,
   ecsClusterName: serviceStack.ecsCluster.clusterName,
   ecsServiceName: serviceStack.ecsService.serviceName,
   ecsClusterVpc: vpcStack.vpc,
+  loadBalancerDns: `http://${serviceStack.loadBalancer.loadBalancerDnsName}`,
+  testEcrRepositoryName: ecrStack.testRepository.repositoryName
 });
 
-
 const alarmStack = new AlarmStack(app, 'MensajeAlarmStack', {
-  env: { region: getConfig().region  }
+  env: { region: getConfig().region }
 });
 
 
